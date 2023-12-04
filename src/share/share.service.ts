@@ -56,6 +56,11 @@ export class ShareService {
                 { _id: share_id.id },
                 { $pull: { datas: dataFind._id } },
                 { new: true })
+            if(share.datas.length === 0) {
+                console.log("hello");
+                
+                await this.shareModel.findByIdAndDelete({_id: share_id.id})
+            }
         }
         } catch (error) {
             throw error

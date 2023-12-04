@@ -13,8 +13,7 @@ export class DataController {
         @Payload() data: { enum: string, name: string, value: string, user_id: any }
     ): Promise<any> {
         try {
-            const newData = await this.dataService.createData(data)
-            return newData
+            await this.dataService.createData(data)
         } catch (error) {
             throw error
         }
@@ -37,7 +36,7 @@ export class DataController {
     ): Promise<any> {
         try {
             const data = await this.dataService.getOneDataById(dataId)
-            // console.log("🚀 ~ file: data.controller.ts:41 ~ DataController ~ data:", data)
+            console.log("🚀 ~ file: data.controller.ts:41 ~ DataController ~ data:", data)
             if (!data) {
                 throw new Error("Data inexistante")
             }
