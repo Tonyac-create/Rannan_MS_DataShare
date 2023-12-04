@@ -17,20 +17,24 @@ export class DataService {
         await this.dataModel.create(data)
     }
 
+    // Suppresion d'une data
     async removeData(dataId: string): Promise<any> {
        await this.dataModel.findByIdAndDelete(dataId)
     }
 
+    // Récupérer une data par son id
     async getOneDataById(dataId: string): Promise<any> {
         const res = await this.dataModel.findOne({ _id: dataId })
         return res
     }
 
+    // Récupérer les datas d'un user
     async getAllDatasOneUser(user_id: number): Promise<any> {
         const datas = await this.dataModel.find({ user_id: user_id })
         return datas
     }
 
+    // Modifier une data
     async updateData(id: any): Promise<any> {
         await this.dataModel.findOneAndUpdate({_id: id._id}, {typeData: id.typeData, name: id.name, value: id.value}, { new: true })
     }

@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DataModule } from './data/data.module';
 import { ShareModule } from './share/share.module';
-import { ShareController } from './share/share.controller';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { ShareController } from './share/share.controller';
     DataModule,
     ShareModule
   ],
-  controllers: [AppController, ShareController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

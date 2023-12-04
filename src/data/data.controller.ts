@@ -10,10 +10,14 @@ export class DataController {
 
     @MessagePattern('createData')
     async createData(
-        @Payload() data: { enum: string, name: string, value: string, user_id: number }
+        @Payload() data: { enum: string, name: string, value: string, user_id: any }
     ): Promise<any> {
-        const newData = await this.dataService.createData(data)
-        return newData
+        try {
+            const newData = await this.dataService.createData(data)
+            return newData
+        } catch (error) {
+            throw error
+        }
     }
 
     @MessagePattern('removeData')
@@ -23,7 +27,7 @@ export class DataController {
         try {
             await this.dataService.removeData(dataId)
         } catch (error) {
-            console.log("error :", error);
+            throw error
         }
     }
 
@@ -32,10 +36,14 @@ export class DataController {
         @Payload() dataId: string
     ): Promise<any> {
         try {
-            const datas = await this.dataService.getOneDataById(dataId)
-            return datas
+            const data = await this.dataService.getOneDataById(dataId)
+            // console.log("🚀 ~ file: data.controller.ts:41 ~ DataController ~ data:", data)
+            if (!data) {
+                throw new Error("Data inexistante")
+            }
+            return data
         } catch (error) {
-            console.log("error :", error);
+            throw error
         }
     }
 
@@ -45,9 +53,13 @@ export class DataController {
     ): Promise<any> {
         try {
             const datas = await this.dataService.getAllDatasOneUser(user_id)
+            console.log("🚀 ~ file: data.controller.ts:57 ~ DataController ~ datas:", datas)
+            if (!datas) {
+                throw new Error("No datas")
+            }
             return datas
         } catch (error) {
-            console.log("error :", error);
+            throw error
         }
     }
 
@@ -56,12 +68,13 @@ export class DataController {
         @Payload() dataId: string
     ): Promise<any> {
         try {
+            if (!dataId) {
+                throw new Error("data not found")
+            }
             const data = await this.dataService.updateData(dataId)
-            console.log("🚀 ~ file: data.controller.ts:60 ~ DataController ~ dataId:", dataId)
-            // console.log("🚀 ~ file: data.controller.ts:60 ~ DataController ~ data:", data)
             return data
         } catch (error) {
-            console.log("error :", error);
+            throw error
         }
     }
 }
