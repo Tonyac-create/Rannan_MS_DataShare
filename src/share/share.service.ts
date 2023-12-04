@@ -140,7 +140,7 @@ export class ShareService {
     async getSharesBetweenUsers(body: { userId_profile: any, user_id: any}) {
         // console.log("🚀 ~ file: share.service.ts:136 ~ ShareService ~ getSharesBetweenUsers ~ body:", body)
         
-        const shares = this.shareModel.find({owner_id: body.user_id, target_id: body.userId_profile.userId_profile})
+        const shares = this.shareModel.find({owner_id: body.userId_profile.userId_profile, target_id: body.user_id})
 
         return shares
     }

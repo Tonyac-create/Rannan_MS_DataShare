@@ -19,7 +19,10 @@ export class DataService {
 
     // Suppresion d'une data
     async removeData(dataId: string): Promise<any> {
-       await this.dataModel.findByIdAndDelete(dataId)
+        const dataToRemoved = await this.dataModel.findByIdAndDelete(dataId)
+        if(!dataToRemoved) {
+            console.log("Data inexistante");
+        }
     }
 
     // Récupérer une data par son id
@@ -36,6 +39,6 @@ export class DataService {
 
     // Modifier une data
     async updateData(id: any): Promise<any> {
-        await this.dataModel.findOneAndUpdate({_id: id._id}, {typeData: id.typeData, name: id.name, value: id.value}, { new: true })
+        await this.dataModel.findOneAndUpdate({ _id: id._id }, { typeData: id.typeData, name: id.name, value: id.value }, { new: true })
     }
 }

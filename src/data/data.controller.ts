@@ -54,7 +54,7 @@ export class DataController {
             const datas = await this.dataService.getAllDatasOneUser(user_id)
             console.log("🚀 ~ file: data.controller.ts:57 ~ DataController ~ datas:", datas)
             if (!datas) {
-                throw new Error("No datas")
+                throw new Error("No datas")   
             }
             return datas
         } catch (error) {
