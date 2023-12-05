@@ -11,7 +11,7 @@ export class DataService {
     ) { }
 
     // Création d'une data
-    async createData(data: { enum: string, name: string, value: string, user_id: any }): Promise<any> {
+    async createData(data: { type: string, name: string, value: string, user_id: any }): Promise<any> {
         const user_id = data.user_id.user_id
         data.user_id = user_id
         await this.dataModel.create(data)
@@ -39,6 +39,6 @@ export class DataService {
 
     // Modifier une data
     async updateData(id: any): Promise<any> {
-        await this.dataModel.findOneAndUpdate({ _id: id._id }, { typeData: id.typeData, name: id.name, value: id.value }, { new: true })
+        await this.dataModel.findOneAndUpdate({ _id: id._id }, { type: id.typeData, name: id.name, value: id.value }, { new: true })
     }
 }

@@ -54,7 +54,7 @@ export class ShareService {
         } else {
             // Récupère les datas id dans la share
             const data_id = share.datas.filter((data) => share.datas)
-            // Récupère la data
+            // Récupère la data à supprimer
             const dataFind = await this.dataModel.findById({ _id: dataId })
             // Conversion de l'id reçu en mongoId
             const shareIdObject = new ObjectId(share_id)

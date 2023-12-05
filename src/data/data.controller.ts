@@ -10,7 +10,7 @@ export class DataController {
 
     @MessagePattern('createData')
     async createData(
-        @Payload() data: { enum: string, name: string, value: string, user_id: any }
+        @Payload() data: { type: string, name: string, value: string, user_id: any }
     ): Promise<any> {
         try {
             await this.dataService.createData(data)
