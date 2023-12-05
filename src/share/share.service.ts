@@ -9,7 +9,7 @@ const { ObjectId } = require('mongodb')
 
 
 type GetShareParams = {
-    user_id: number
+    user: number
     target: string
 }
 
@@ -88,7 +88,12 @@ export class ShareService {
     }
 
     // Création d'une data
-    async createShare(body: { data_id: string, target: string, target_id: number, owner_id: any }): Promise<any> {
+    async createShare(body: { 
+        data_id: string, 
+        target: string, 
+        target_id: number, 
+        owner_id: any })
+        : Promise<Share> {
         try {
 
             const owner_id = body.owner_id.user_id
@@ -127,6 +132,7 @@ export class ShareService {
 
                 data.shares.push(newShare._id);
                 await data.save()
+                return newShare
                 // si une share existe
             } else {
                 shareGet.datas.push(body.data_id);
@@ -142,8 +148,7 @@ export class ShareService {
 
     // Récupérer la liste des users avec qui on paratge des datas
     async getListUsersShare(params: GetShareParams) {
-        const shares = this.shareModel.find({owner_id: params.user_id, target: params.target})
-        
+        const shares = this.shareModel.find({owner_id: params.user, target: params.target})
         return shares
     }
 

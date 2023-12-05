@@ -18,7 +18,7 @@ export class Data {
     user_id: Number
 
     @Prop({ type: String, enum: DataFormat })
-    type: DataFormat
+    type?: DataFormat
 
     @Prop({ type: String })
     name: String

@@ -26,6 +26,7 @@ export class DataService {
 
     // Récupérer une data par son id
     async getOneDataById(dataId: string): Promise<Data> {
+        console.log("🚀 ~ file: data.service.ts:29 ~ DataService ~ getOneDataById ~ dataId:", dataId)
         return await this.dataModel.findOne({ _id: dataId })
     }
 

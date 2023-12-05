@@ -3,6 +3,7 @@ import { ShareService } from './share.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DataService } from 'src/data/data.service';
 import { Share } from './schemas/share.schema';
+import { Data } from 'src/data/schemas/data.schema';
 
 @Controller('share')
 export class ShareController {
@@ -73,16 +74,14 @@ export class ShareController {
 
     @MessagePattern('getListUsers')
     async getListUsersShare(
-        @Payload() list: any
-    ): Promise<any> {
+        @Payload() body: { user: number, target: string}
+    ): Promise<number[]> {
         try {
-            const shares = await this.shareService.getListUsersShare(list)
-            console.log("🚀 ~ file: share.controller.ts:28 ~ ShareController ~ getAllShares ~ shares:", shares)
+            const shares = await this.shareService.getListUsersShare(body)
             // Récupération des ids (target-id) des users avec qui userconnecté partage des informations
             const usersToShare: any = shares.map((share) => share.target_id)
-            console.log("🚀 ~ file: share.controller.ts:69 ~ ShareController ~ usersToShare:", usersToShare)
 
-            return shares
+            return usersToShare
         } catch (error) {
             throw error
         }
@@ -90,20 +89,20 @@ export class ShareController {
 
     @MessagePattern('getShares')
     async getShares(
-        @Payload() list: any
-    ): Promise<any> {
+        // Récupération d'une partie des datas(non pris en compte type)
+        @Payload() listDatas: any
+    ): Promise<any[]> {
         try {
-            const share = await this.shareService.getShares(list)
-            // console.log("🚀 ~ file: share.controller.ts:28 ~ ShareController ~ getAllShares ~ shares:", share)
+            const share = await this.shareService.getShares(listDatas)
             const usersToShareIds: string[] = share.flatMap((share) => share.datas.map((data: any) => data.toString()))
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
-                console.log("🚀 ~ file: share.controller.ts:90 ~ ShareController ~ dataObjects ~ data_id:", data_id)
                 const data = await this.dataService.getOneDataById(data_id)
                 const id = data_id
                 const name = data.name
                 const value = data.value
                 return { id, name, value }
             }))
+            console.log("🚀 ~ file: share.controller.ts:105 ~ ShareController ~ dataObjects ~ dataObjects:", dataObjects)
             return dataObjects
         } catch (error) {
             throw error
@@ -113,7 +112,7 @@ export class ShareController {
     @MessagePattern('getSharesBetweenUsers')
     async getSharesBetweenUsers(
         @Payload() list: any
-    ): Promise<any[]> {
+    ): Promise<Data[]> {
         try {
             const share: any = await this.shareService.getSharesBetweenUsers(list)
             console.log("🚀 ~ file: share.controller.ts:113 ~ ShareController ~ share:", share)
@@ -125,11 +124,12 @@ export class ShareController {
             }))
             console.log("🚀 ~ file: share.controller.ts:93 ~ ShareController ~ dataObjects ~ dataObjects:", dataObjects)
             let dataList = []
-            dataObjects.map((data) => {
-                // const id = data._id
+            dataObjects.map((data: any) => {
+                const id = data._id
+                console.log("🚀 ~ file: share.controller.ts:131 ~ ShareController ~ dataObjects.map ~ data:", data)
                 const name = data.name
                 const value = data.value
-                return dataList.push({ name, value}) // id, 
+                return dataList.push({ id, name, value})
             })
             console.log("🚀 ~ file: share.controller.ts:94 ~ ShareController ~ dataList:", dataList)
             return dataList
