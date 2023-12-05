@@ -40,10 +40,21 @@ export class ShareController {
 
     @MessagePattern('removeShare')
     async removeShare(
-        @Payload() share_id: { id: string, data_id: string }
+        @Payload() share_id: any
     ): Promise<any> {
         try {
             await this.shareService.removeShare(share_id)
+        } catch (error) {
+            throw error
+        }
+    }
+
+    @MessagePattern('removeDataInShare')
+    async removeDataInShare(
+        @Payload() share_id: { id: string, data_id: string }
+    ): Promise<any> {
+        try {
+            await this.shareService.removeDataInShare(share_id)
         } catch (error) {
             throw error
         }

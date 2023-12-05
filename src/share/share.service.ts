@@ -27,9 +27,24 @@ export class ShareService {
         return share
     }
 
-    // Suppresion d'une share
-    async removeShare(share_id: {id: string, data_id: string}): Promise<any> {
-        
+    // Suppression d'une share entière
+    async removeShare(share_id: any): Promise<any> {
+        const share = await this.shareModel.findById({ _id: share_id })
+        // Récupère les datas id dans la share
+        const dataIds = share.datas.filter((data) => share.datas)
+        // Boucle pour récupérer le ou les ids data pour suppression dans data.shares
+        for(const dataId of dataIds) {
+            await this.dataModel.findOneAndUpdate(
+            { _id: dataId },
+            { $pull: { shares: share_id } },
+            { new: true })
+        }
+        // Suppresion de la share en entier
+        await this.shareModel.findByIdAndDelete(share_id)
+    }
+    
+    // Suppression d'une data dans share et de share dans data
+    async removeDataInShare(share_id: {id: string, data_id: string}): Promise<any> {
         try {
         const dataId = share_id.data_id
         // Récupération de la share
@@ -56,11 +71,7 @@ export class ShareService {
                 { _id: share_id.id },
                 { $pull: { datas: dataFind._id } },
                 { new: true })
-            if(share.datas.length === 0) {
-                console.log("hello");
-                
-                await this.shareModel.findByIdAndDelete({_id: share_id.id})
-            }
+            
         }
         } catch (error) {
             throw error
