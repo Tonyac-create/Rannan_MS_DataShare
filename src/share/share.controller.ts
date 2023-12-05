@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ShareService } from './share.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DataService } from 'src/data/data.service';
+import { Share } from './schemas/share.schema';
 
 @Controller('share')
 export class ShareController {
@@ -13,7 +14,7 @@ export class ShareController {
     @MessagePattern('createShare')
     async createShare(
         @Payload() share: { data_id: string, target: string, target_id: number, owner_id: any }
-    ): Promise<any> {
+    ): Promise<Share> {
         try {
             const newShare = await this.shareService.createShare(share)
             return newShare
@@ -25,7 +26,7 @@ export class ShareController {
     @MessagePattern('getOneShare')
     async getShare(
         @Payload() share: any
-    ): Promise<any> {
+    ): Promise<Share> {
         try {
             const shareFind = await this.shareService.getOneShare(share)
             console.log("🚀 ~ file: share.controller.ts:30 ~ ShareController ~ shareFind:", shareFind)
@@ -41,7 +42,7 @@ export class ShareController {
     @MessagePattern('removeShare')
     async removeShare(
         @Payload() share_id: any
-    ): Promise<any> {
+    ): Promise<void> {
         try {
             await this.shareService.removeShare(share_id)
         } catch (error) {
@@ -52,7 +53,7 @@ export class ShareController {
     @MessagePattern('removeDataInShare')
     async removeDataInShare(
         @Payload() share_id: { id: string, data_id: string }
-    ): Promise<any> {
+    ): Promise<void> {
         try {
             await this.shareService.removeDataInShare(share_id)
         } catch (error) {
@@ -61,7 +62,7 @@ export class ShareController {
     }
 
     @Get()
-    async getAllShares(): Promise<any> {
+    async getAllShares(): Promise<void> {
         try {
             const shares = await this.shareService.allShares()
             console.log("🚀 ~ file: share.controller.ts:28 ~ ShareController ~ getAllShares ~ shares:", shares)
@@ -98,18 +99,12 @@ export class ShareController {
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
                 console.log("🚀 ~ file: share.controller.ts:90 ~ ShareController ~ dataObjects ~ data_id:", data_id)
                 const data = await this.dataService.getOneDataById(data_id)
-                return data
-            }))
-            console.log("🚀 ~ file: share.controller.ts:93 ~ ShareController ~ dataObjects ~ dataObjects:", dataObjects)
-            let dataList = []
-            dataObjects.map((data) => {
-                const id = data._id
+                const id = data_id
                 const name = data.name
                 const value = data.value
-                return dataList.push({ id, name, value})
-            })
-            console.log("🚀 ~ file: share.controller.ts:94 ~ ShareController ~ dataList:", dataList)
-            return dataList
+                return { id, name, value }
+            }))
+            return dataObjects
         } catch (error) {
             throw error
         }
@@ -118,7 +113,7 @@ export class ShareController {
     @MessagePattern('getSharesBetweenUsers')
     async getSharesBetweenUsers(
         @Payload() list: any
-    ): Promise<any> {
+    ): Promise<any[]> {
         try {
             const share: any = await this.shareService.getSharesBetweenUsers(list)
             console.log("🚀 ~ file: share.controller.ts:113 ~ ShareController ~ share:", share)
@@ -131,10 +126,10 @@ export class ShareController {
             console.log("🚀 ~ file: share.controller.ts:93 ~ ShareController ~ dataObjects ~ dataObjects:", dataObjects)
             let dataList = []
             dataObjects.map((data) => {
-                const id = data._id
+                // const id = data._id
                 const name = data.name
                 const value = data.value
-                return dataList.push({ id, name, value})
+                return dataList.push({ name, value}) // id, 
             })
             console.log("🚀 ~ file: share.controller.ts:94 ~ ShareController ~ dataList:", dataList)
             return dataList

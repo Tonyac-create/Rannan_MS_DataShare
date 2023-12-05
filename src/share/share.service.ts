@@ -4,7 +4,14 @@ import { Share, ShareDocument } from './schemas/share.schema';
 import { Model } from 'mongoose';
 import { Data, DataDocument } from 'src/data/schemas/data.schema';
 import { error } from 'console';
+import { type } from 'os';
 const { ObjectId } = require('mongodb')
+
+
+type GetShareParams = {
+    user_id: number
+    target: string
+}
 
 @Injectable()
 export class ShareService {
@@ -134,11 +141,12 @@ export class ShareService {
     }
 
     // Récupérer la liste des users avec qui on paratge des datas
-    async getListUsersShare(body: {user: any, target: string}) {
-        const shares = this.shareModel.find({owner_id: body.user.user_id, target: body.target})
+    async getListUsersShare(params: GetShareParams) {
+        const shares = this.shareModel.find({owner_id: params.user_id, target: params.target})
         
         return shares
     }
+
 
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
     async getShares(body: {target: any, target_id: any}) {

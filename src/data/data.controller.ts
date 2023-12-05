@@ -1,6 +1,8 @@
-import { Controller, Delete, Param } from '@nestjs/common';
+import { Controller, Delete, Param, ValidationPipe } from '@nestjs/common';
 import { DataService } from './data.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Data } from './schemas/data.schema';
+import { CreateDataDto } from './dtos/createData.dto';
 
 @Controller('data')
 export class DataController {
@@ -10,8 +12,8 @@ export class DataController {
 
     @MessagePattern('createData')
     async createData(
-        @Payload() data: { enum: string, name: string, value: string, user_id: any }
-    ): Promise<any> {
+        @Payload(new ValidationPipe()) data: CreateDataDto
+    ): Promise<void> {
         try {
             await this.dataService.createData(data)
         } catch (error) {
@@ -22,7 +24,7 @@ export class DataController {
     @MessagePattern('removeData')
     async removeData(
         @Payload() dataId: string
-    ): Promise<any> {
+    ): Promise<void> {
         try {
             await this.dataService.removeData(dataId)
         } catch (error) {
@@ -33,7 +35,7 @@ export class DataController {
     @MessagePattern('getOneData')
     async getOneData(
         @Payload() dataId: string
-    ): Promise<any> {
+    ): Promise<Data> {
         try {
             const data = await this.dataService.getOneDataById(dataId)
             console.log("🚀 ~ file: data.controller.ts:41 ~ DataController ~ data:", data)
@@ -49,7 +51,7 @@ export class DataController {
     @MessagePattern('getAllDatasOneUser')
     async getAllDatasOneUser(
         @Payload() user_id: number
-    ): Promise<any> {
+    ): Promise<Data[]> {
         try {
             const datas = await this.dataService.getAllDatasOneUser(user_id)
             console.log("🚀 ~ file: data.controller.ts:57 ~ DataController ~ datas:", datas)
@@ -65,12 +67,13 @@ export class DataController {
     @MessagePattern('updateData')
     async updateData(
         @Payload() dataId: string
-    ): Promise<any> {
+    ): Promise<Data> {
         try {
-            if (!dataId) {
+            
+            const data = await this.dataService.updateData(dataId)
+            if (!data) {
                 throw new Error("data not found")
             }
-            const data = await this.dataService.updateData(dataId)
             return data
         } catch (error) {
             throw error

@@ -14,13 +14,11 @@ enum DataFormat {
 @Schema({ collection: "data", timestamps: true, versionKey: false })
 export class Data {
     // One-to-many avec un user(db SQL)
-    @Prop({
-        type: Number
-    })
+    @Prop({ required: true, type: Number })
     user_id: Number
 
     @Prop({ type: String, enum: DataFormat })
-    typeData: DataFormat
+    type: DataFormat
 
     @Prop({ type: String })
     name: String
