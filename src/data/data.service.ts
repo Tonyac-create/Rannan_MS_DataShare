@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Data, DataDocument } from './schemas/data.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateDataDto } from './dtos/createData.dto';
 
 @Injectable()
@@ -41,6 +41,7 @@ export class DataService {
 
     // Modifier une data
     async updateData(id: any): Promise<Data> {
+        console.log("🚀 ~ file: data.service.ts:44 ~ DataService ~ updateData ~ id:", id)
         return await this.dataModel.findOneAndUpdate({ _id: id._id }, { typeData: id.typeData, name: id.name, value: id.value }, { new: true })
     }
 }

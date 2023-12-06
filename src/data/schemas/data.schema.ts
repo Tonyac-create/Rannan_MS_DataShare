@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from "mongoose";
 
 export type DataDocument = HydratedDocument<Data>
 
-enum DataFormat {
+export enum DataFormat {
     TEXT = "text",
     NUMBER = "number",
     URL = "url",

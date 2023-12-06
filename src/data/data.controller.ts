@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Delete, HttpException, HttpStatus, Param, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { DataService } from './data.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Data } from './schemas/data.schema';
@@ -12,10 +12,10 @@ export class DataController {
 
     @MessagePattern('createData')
     async createData(
-        @Payload(new ValidationPipe()) data: CreateDataDto
+        @Payload() data: CreateDataDto
     ): Promise<void> {
         try {
-            await this.dataService.createData(data)
+            const dataCreated = await this.dataService.createData(data)
         } catch (error) {
             throw new BadRequestException(
                 'Something bad happened',
@@ -61,7 +61,6 @@ export class DataController {
     ): Promise<Data[]> {
         try {
             const datas = await this.dataService.getAllDatasOneUser(user_id)
-            console.log("🚀 ~ file: data.controller.ts:57 ~ DataController ~ datas:", datas)
             if (!datas) {
                 throw new Error("No datas")
             }
@@ -78,6 +77,7 @@ export class DataController {
     async updateData(
         @Payload() dataId: string
     ): Promise<Data> {
+        console.log("🚀 ~ file: data.controller.ts:80 ~ DataController ~ dataId:", dataId)
         try {
 
             const data = await this.dataService.updateData(dataId)
