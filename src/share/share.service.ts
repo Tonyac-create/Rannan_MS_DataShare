@@ -4,7 +4,6 @@ import { Share, ShareDocument } from './schemas/share.schema';
 import { Model } from 'mongoose';
 import { Data, DataDocument } from 'src/data/schemas/data.schema';
 import { error } from 'console';
-import { type } from 'os';
 const { ObjectId } = require('mongodb')
 
 
@@ -24,18 +23,18 @@ export class ShareService {
     ) { }
 
     // Récupération de toutes les shares
-    async allShares() {
+    async allShares(): Promise<Share[]> {
         return this.shareModel.find({})
     }
 
     // Récupérer une share
-    async getOneShare(id: string) {
+    async getOneShare(id: string): Promise<Share> {
         const share = this.shareModel.findById({ _id: id })
         return share
     }
 
     // Suppression d'une share entière
-    async removeShare(share_id: any): Promise<any> {
+    async removeShare(share_id: any): Promise<void> {
         const share = await this.shareModel.findById({ _id: share_id })
         // Récupère les datas id dans la share
         const dataIds = share.datas.filter((data) => share.datas)
@@ -112,7 +111,7 @@ export class ShareService {
 
             // Cherche si share existante
             const existShare = allShare
-                .filter((share) => {
+                .filter((share: any) => {
                     shareFind = share.target_id === body.target_id && share.owner_id === body.owner_id
                     // Si une share existe, récupération id share et objet share
                     if (shareFind === true) {
@@ -147,21 +146,21 @@ export class ShareService {
     }
 
     // Récupérer la liste des users avec qui on paratge des datas
-    async getListUsersShare(params: GetShareParams) {
+    async getListUsersShare(params: GetShareParams): Promise<Share[]> {
         const shares = this.shareModel.find({owner_id: params.user, target: params.target})
         return shares
     }
 
 
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
-    async getShares(body: {target: any, target_id: any}) {
+    async getShares(body: {target: any, target_id: any}): Promise<Share[]> {
         const shares = this.shareModel.find({target: body.target, target_id: body.target_id})
         
         return shares
     }
 
     // Récupérer les shares entre un user et user connecté
-    async getSharesBetweenUsers(body: { userId_profile: any, user_id: any}) {
+    async getSharesBetweenUsers(body: { userId_profile: any, user_id: any}): Promise<Share[]> {
         // console.log("🚀 ~ file: share.service.ts:136 ~ ShareService ~ getSharesBetweenUsers ~ body:", body)
         
         const shares = this.shareModel.find({owner_id: body.userId_profile.userId_profile, target_id: body.user_id})

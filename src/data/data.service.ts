@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Data, DataDocument } from './schemas/data.schema';
 import mongoose, { Model } from 'mongoose';
@@ -20,7 +20,10 @@ export class DataService {
     async removeData(dataId: string): Promise<void> {
         const dataToRemoved = await this.dataModel.findByIdAndDelete(dataId)
         if(!dataToRemoved) {
-            console.log("Data inexistante");
+            throw new HttpException(
+                'Erreur lors de la suppression de la donnée',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 

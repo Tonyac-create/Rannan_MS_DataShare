@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Controller, Delete, HttpException, HttpStatus, Param, ValidationPipe } from '@nestjs/common';
 import { DataService } from './data.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Data } from './schemas/data.schema';
@@ -17,7 +17,9 @@ export class DataController {
         try {
             await this.dataService.createData(data)
         } catch (error) {
-            throw error
+            throw new BadRequestException(
+                'Something bad happened',
+                { cause: new Error(), description: 'Erreur lors de la création de la donnée' })
         }
     }
 
@@ -28,7 +30,10 @@ export class DataController {
         try {
             await this.dataService.removeData(dataId)
         } catch (error) {
-            throw error
+            throw new HttpException(
+                'Erreur lors de la suppression de la donnée',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 
@@ -38,13 +43,15 @@ export class DataController {
     ): Promise<Data> {
         try {
             const data = await this.dataService.getOneDataById(dataId)
-            console.log("🚀 ~ file: data.controller.ts:41 ~ DataController ~ data:", data)
             if (!data) {
-                throw new Error("Data inexistante")
+                throw Error
             }
             return data
         } catch (error) {
-            throw error
+            throw new HttpException(
+                'Erreur lors de la lecture de la donnée',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 
@@ -56,11 +63,14 @@ export class DataController {
             const datas = await this.dataService.getAllDatasOneUser(user_id)
             console.log("🚀 ~ file: data.controller.ts:57 ~ DataController ~ datas:", datas)
             if (!datas) {
-                throw new Error("No datas")   
+                throw new Error("No datas")
             }
             return datas
         } catch (error) {
-            throw error
+            throw new HttpException(
+                'Erreur lors de la lecture des données',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 
@@ -69,14 +79,17 @@ export class DataController {
         @Payload() dataId: string
     ): Promise<Data> {
         try {
-            
+
             const data = await this.dataService.updateData(dataId)
             if (!data) {
                 throw new Error("data not found")
             }
             return data
         } catch (error) {
-            throw error
+            throw new HttpException(
+                'Erreur lors de la mise à jour de la donnée',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            )
         }
     }
 }
