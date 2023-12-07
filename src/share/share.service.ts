@@ -4,6 +4,8 @@ import { Share, ShareDocument } from './schemas/share.schema';
 import { Model } from 'mongoose';
 import { Data, DataDocument } from 'src/data/schemas/data.schema';
 import { error } from 'console';
+import { CreateShareDto } from 'src/data/dtos/createShare.dto';
+import { RpcException } from '@nestjs/microservices';
 const { ObjectId } = require('mongodb')
 
 
@@ -24,81 +26,67 @@ export class ShareService {
 
     // Récupération de toutes les shares
     async allShares(): Promise<Share[]> {
-        return this.shareModel.find({})
+        try {
+            return this.shareModel.find({})
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération des shares')
+        }
     }
 
     // Récupérer une share
     async getOneShare(id: string): Promise<Share> {
-        const share = this.shareModel.findById({ _id: id })
-        return share
+        try {
+            const share = this.shareModel.findById({ _id: id })
+            return share
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération de la share')
+        }
     }
 
     // Suppression d'une share entière
     async removeShare(share_id: any): Promise<void> {
-        const share = await this.shareModel.findById({ _id: share_id })
-        // Récupère les datas id dans la share
-        const dataIds = share.datas.filter((data) => share.datas)
-        // Boucle pour récupérer le ou les ids data pour suppression dans data.shares
-        for(const dataId of dataIds) {
-            await this.dataModel.findOneAndUpdate(
-            { _id: dataId },
-            { $pull: { shares: share_id } },
-            { new: true })
-        }
-        // Suppresion de la share en entier
-        await this.shareModel.findByIdAndDelete(share_id)
-    }
-    
-    // Suppression d'une data dans share et de share dans data
-    async removeDataInShare(share_id: {id: string, data_id: string}): Promise<any> {
         try {
-        const dataId = share_id.data_id
-        // Récupération de la share
-        const share = await this.shareModel.findById({ _id: share_id.id })
-        if (!share) {
-            throw error
-        } else {
-            // Récupère les datas id dans la share
-            const data_id = share.datas.filter((data) => share.datas)
-            // Récupère la data
-            const dataFind = await this.dataModel.findById({ _id: dataId })
-            // Conversion de l'id reçu en mongoId
-            const shareIdObject = new ObjectId(share_id)
-            // Cherche et supprime dans le tableau shares de data l'id de la data partagée
-            const dataSorted = dataFind.shares.map(async (e) => {
-                const test = shareIdObject.equals(e);
-                await this.dataModel.findOneAndUpdate(
-                    { _id: dataFind._id },
-                    { $pull: { shares: shareIdObject } },
-                    { new: true })
-            })
-            // Supprime la data de la share existante
-            await this.shareModel.findOneAndUpdate(
-                { _id: share_id.id },
-                { $pull: { datas: dataFind._id } },
-                { new: true })
-            
-        }
+            await this.shareModel.findByIdAndDelete(share_id)            
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la suppression de la share')
         }
-        
+    }
+
+    // Suppression d'une data dans share et de share dans data
+    async removeDataInShare(share_id: { id: string, data_id: string }): Promise<any> {
+        try {
+            const dataId = share_id.data_id
+            // Récupération de la share
+            const share = await this.shareModel.findById({ _id: share_id.id })
+            if (!share) {
+                throw error
+            } else {
+                // Récupère les datas id dans la share
+                const data_id = share.datas.filter((data) => share.datas)
+                // Récupère la data
+                const dataFind = await this.dataModel.findById({ _id: dataId })
+                // Conversion de l'id reçu en mongoId
+                const shareIdObject = new ObjectId(share_id)
+
+                // Supprime la data de la share existante
+                await this.shareModel.findOneAndUpdate(
+                    { _id: share_id.id },
+                    { $pull: { datas: dataFind._id } },
+                    { new: true })
+            }
+        } catch (error) {
+            throw new RpcException('Erreur lors de la suppression de la data dans share')
+        }
+
 
     }
 
     // Création d'une data
-    async createShare(body: { 
-        data_id: string, 
-        target: string, 
-        target_id: number, 
-        owner_id: any })
+    async createShare(share: CreateShareDto)
         : Promise<Share> {
         try {
-
-            const owner_id = body.owner_id.user_id
-            body.owner_id = owner_id
             // Cherche et vérifie si la data exist
-            const data = await this.dataModel.findOne({ _id: body.data_id });
+            const data = await this.dataModel.findOne({ _id: share.data_id })
             if (!data) {
                 throw new Error('Data not found');
             }
@@ -110,61 +98,70 @@ export class ShareService {
             let shareGet: any
 
             // Cherche si share existante
-            const existShare = allShare
-                .filter((share: any) => {
-                    shareFind = share.target_id === body.target_id && share.owner_id === body.owner_id
-                    // Si une share existe, récupération id share et objet share
-                    if (shareFind === true) {
-                        shareId = share._id
-                        shareGet = share
-                    }
-                })
+            allShare.filter((shareElement: any) => {
+                shareFind = shareElement.target_id === share.target_id && shareElement.owner_id === share.owner_id
+                // Si une share existe, récupération id share et objet share
+                if (shareFind === true) {
+                    shareId = shareElement._id
+                    shareGet = shareElement
+                }
+            })
 
             // si pas de share existante
             if (!shareFind) {
                 const newShare = await this.shareModel.create({
-                    target: body.target,
-                    target_id: body.target_id,
-                    owner_id: body.owner_id,
-                    datas: [body.data_id]
+                    target: share.target,
+                    target_id: share.target_id,
+                    owner_id: share.owner_id,
+                    datas: [share.data_id]
                 })
-
-                data.shares.push(newShare._id);
-                await data.save()
                 return newShare
                 // si une share existe
             } else {
-                shareGet.datas.push(body.data_id);
-                data.shares.push(shareId)
+                shareGet.datas.push(share.data_id);
                 await shareGet.save()
-                await data.save()
             }
-
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la création de la share')
         }
     }
 
     // Récupérer la liste des users avec qui on paratge des datas
     async getListUsersShare(params: GetShareParams): Promise<Share[]> {
-        const shares = this.shareModel.find({owner_id: params.user, target: params.target})
-        return shares
+        try {
+            const shares = this.shareModel.find({ owner_id: params.user, target: params.target })
+            return shares            
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération des utilisateurs')
+        }
     }
 
-
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
-    async getShares(body: {target: any, target_id: any}): Promise<Share[]> {
-        const shares = this.shareModel.find({target: body.target, target_id: body.target_id})
-        
-        return shares
+    async getShares(body: { target: string, target_id: number }): Promise<any> {
+        try {
+            const shares = this.shareModel.find({ target: body.target, target_id: body.target_id })
+            console.log("🚀 ~ file: share.service.ts:143 ~ ShareService ~ getShares ~ shares:", shares)
+            // const usersToShareIds: string[] = shares.flatMap((share) => share.datas.map((data: any) => data.toString()))
+            // const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
+            //     const data = await this.dataModel.findOne(data_id)
+            //     const id = data_id
+            //     const name = data.name
+            //     const value = data.value
+            //     return { id, name, value }
+            // }))
+            return shares
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération des shares')
+        }
     }
 
     // Récupérer les shares entre un user et user connecté
-    async getSharesBetweenUsers(body: { userId_profile: any, user_id: any}): Promise<Share[]> {
-        // console.log("🚀 ~ file: share.service.ts:136 ~ ShareService ~ getSharesBetweenUsers ~ body:", body)
-        
-        const shares = this.shareModel.find({owner_id: body.userId_profile.userId_profile, target_id: body.user_id})
-
-        return shares
+    async getSharesBetweenUsers(body: { userId_profile: any, user_id: any }): Promise<Share[]> {
+        try {
+            const shares = this.shareModel.find({ owner_id: body.userId_profile.userId_profile, target_id: body.user_id })
+            return shares
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
+        }
     }
 }
