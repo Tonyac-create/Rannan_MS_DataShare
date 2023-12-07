@@ -77,12 +77,12 @@ export class ShareController {
 
     @MessagePattern('getListUsers')
     async getListUsersShare(
-        @Payload() body: { user: number, target: string}
+        @Payload() body: { user: number, target: string }
     ): Promise<Number[]> {
         try {
             const shares = await this.shareService.getListUsersShare(body)
             // Récupération des ids (target-id) des users avec qui userconnecté partage des informations
-            const usersToShare = shares.map((share) => share.target_id) 
+            const usersToShare = shares.map((share) => share.target_id)
             return usersToShare
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des utilisateurs')
@@ -92,11 +92,12 @@ export class ShareController {
     @MessagePattern('getShares')
     async getShares(
         // Récupération d'une partie des datas(non pris en compte type)
-        @Payload() shareObjet: { target: any, target_id: any }
+        @Payload() shareObjet: { target: string, target_id: number }
     ): Promise<any[]> {
-        console.log("🚀 ~ file: share.controller.ts:97 ~ ShareController ~ listDatas:", shareObjet)
         try {
             const share = await this.shareService.getShares(shareObjet)
+            console.log("🚀 ~ file: share.controller.ts:97 ~ ShareController ~ shareObjet:", shareObjet)
+
             console.log("🚀 ~ file: share.controller.ts:100 ~ ShareController ~ share:", share)
             const usersToShareIds: string[] = share.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
@@ -133,11 +134,11 @@ export class ShareController {
                 console.log("🚀 ~ file: share.controller.ts:131 ~ ShareController ~ dataObjects.map ~ data:", data)
                 const name = data.name
                 const value = data.value
-                return dataList.push({ id, name, value})
+                return dataList.push({ id, name, value })
             })
             console.log("🚀 ~ file: share.controller.ts:94 ~ ShareController ~ dataList:", dataList)
             return dataList
-            
+
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
         }

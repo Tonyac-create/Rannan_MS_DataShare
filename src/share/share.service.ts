@@ -137,10 +137,11 @@ export class ShareService {
     }
 
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
-    async getShares(body: { target: string, target_id: number }): Promise<any> {
+    async getShares(body: { target: string, target_id: number }): Promise<Share[]> {
         try {
-            const shares = this.shareModel.find({ target: body.target, target_id: body.target_id })
-            console.log("🚀 ~ file: share.service.ts:143 ~ ShareService ~ getShares ~ shares:", shares)
+            console.log("🚀 ~ file: share.service.ts:141 ~ ShareService ~ getShares ~ body:", body)
+            const share = this.shareModel.find({ target: body.target, target_id: body.target_id })
+            console.log("cc du service")
             // const usersToShareIds: string[] = shares.flatMap((share) => share.datas.map((data: any) => data.toString()))
             // const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
             //     const data = await this.dataModel.findOne(data_id)
@@ -149,7 +150,7 @@ export class ShareService {
             //     const value = data.value
             //     return { id, name, value }
             // }))
-            return shares
+            return share
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des shares')
         }
