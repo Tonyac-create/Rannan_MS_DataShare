@@ -1,15 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import { HydratedDocument } from "mongoose"
+import { DataFormatEnum } from "src/enums/data.enum";
 
 export type DataDocument = HydratedDocument<Data>
-
-export enum DataFormat {
-    TEXT = "text",
-    NUMBER = "number",
-    URL = "url",
-    MAIL = "mail",
-    FILE = "file"
-}
 
 @Schema({ collection: "data", timestamps: true, versionKey: false })
 export class Data {
@@ -17,21 +10,14 @@ export class Data {
     @Prop({ required: true, type: Number })
     user_id: Number
 
-    @Prop({ type: String, enum: DataFormat })
-    type?: DataFormat
+    @Prop({ type: String, enum: DataFormatEnum })
+    type?: DataFormatEnum
 
     @Prop({ type: String })
     name: String
 
     @Prop({ type: String })
     value: String
-
-    // Many-to-many avec share
-    @Prop({
-        type: [{ type: mongoose.Schema.Types.ObjectId}],
-        default: [],
-    })
-    shares: mongoose.Types.Array<string>
 }
 
 export const dataSchema = SchemaFactory.createForClass(Data)

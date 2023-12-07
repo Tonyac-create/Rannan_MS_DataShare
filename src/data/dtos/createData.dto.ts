@@ -1,16 +1,21 @@
-import { IsNumber, IsString } from "class-validator"
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+import { DataFormatEnum } from "src/enums/data.enum"
 
 export class CreateDataDto{
-
+    @IsNotEmpty()
     @IsNumber()
     user_id: number
 
     @IsString()
-    type: string
+    @IsOptional()
+    @IsEnum(DataFormatEnum)
+    type?: DataFormatEnum
 
     @IsString()
-    name: string
+    @IsOptional()
+    name?: string
 
     @IsString()
-    value: string
+    @IsOptional()
+    value?: string
 }

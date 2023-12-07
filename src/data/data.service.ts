@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Data, DataDocument } from './schemas/data.schema';
 import { Model } from 'mongoose';
 import { CreateDataDto } from './dtos/createData.dto';
+import { RpcException } from '@nestjs/microservices';
+import { error } from 'console';
 
 @Injectable()
 export class DataService {
@@ -12,36 +14,52 @@ export class DataService {
     ) { }
 
     // Création d'une data
-    async createData(data: CreateDataDto): Promise<void> {
-        await this.dataModel.create(data)
+    async createData(data: CreateDataDto): Promise<Data> {
+        try {
+            return await this.dataModel.create(data)
+        } catch (error) {
+            throw new RpcException('Erreur lors de la création de la data')
+        }
     }
 
-    // Suppresion d'une data
-    async removeData(dataId: string): Promise<void> {
-        const dataToRemoved = await this.dataModel.findByIdAndDelete(dataId)
-        if(!dataToRemoved) {
-            throw new HttpException(
-                'Erreur lors de la suppression de la donnée',
-                HttpStatus.INTERNAL_SERVER_ERROR
-            )
+    // Suppression d'une data
+    async removeData(_id: string): Promise<void> {
+        console.log("🚀 ~ file: data.service.ts:27 ~ DataService ~ removeData ~ dataId:", _id)
+        try {
+            const dataToRemoved = await this.dataModel.findByIdAndDelete(_id)
+            if(!dataToRemoved) {
+                throw new error
+            }            
+        } catch (error) {
+            throw new RpcException('Data inexistante')
         }
     }
 
     // Récupérer une data par son id
-    async getOneDataById(dataId: string): Promise<Data> {
-        console.log("🚀 ~ file: data.service.ts:29 ~ DataService ~ getOneDataById ~ dataId:", dataId)
-        return await this.dataModel.findOne({ _id: dataId })
+    async getOneDataById(_id: string): Promise<Data> {
+        try {
+            return await this.dataModel.findOne({ _id })            
+        } catch (error) {
+            throw new RpcException('Data inexistante')
+        }
     }
 
     // Récupérer les datas d'un user
     async getAllDatasOneUser(user_id: number): Promise<Data[]> {
-        const datas = await this.dataModel.find({ user_id: user_id })
-        return datas
+        try {
+            return await this.dataModel.find({ user_id })            
+        } catch (error) {
+            throw new RpcException('Datas inexistantes')
+        }
     }
 
     // Modifier une data
-    async updateData(id: any): Promise<Data> {
-        console.log("🚀 ~ file: data.service.ts:44 ~ DataService ~ updateData ~ id:", id)
-        return await this.dataModel.findOneAndUpdate({ _id: id._id }, { typeData: id.typeData, name: id.name, value: id.value }, { new: true })
+    async updateData(data: {_id: string, type: string, name: string, value: string}): Promise<Data> {
+        try {
+            // console.log("🚀 ~ file: data.service.ts:44 ~ DataService ~ updateData ~ data:", data)
+        return await this.dataModel.findOneAndUpdate({ _id: data._id }, { type: data.type, name: data.name, value: data.value}, { new: true } ) 
+        } catch (error) {
+            throw new RpcException('Erreur lors de la mise à jour de la data')
+        }
     }
 }

@@ -1,11 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { ShareService } from './share.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { DataService } from 'src/data/data.service';
 import { Share } from './schemas/share.schema';
 import { Data } from 'src/data/schemas/data.schema';
+import { CreateShareDto } from 'src/data/dtos/createShare.dto';
 
-@Controller('share')
+@Controller()
 export class ShareController {
     constructor(
         private readonly shareService: ShareService,
@@ -14,40 +15,42 @@ export class ShareController {
 
     @MessagePattern('createShare')
     async createShare(
-        @Payload() share: { data_id: string, target: string, target_id: number, owner_id: any }
+        @Payload() share: CreateShareDto
     ): Promise<Share> {
+        // console.log("🚀 ~ file: share.controller.ts:20 ~ ShareController ~ share:", share)
         try {
             const newShare = await this.shareService.createShare(share)
+            // console.log("🚀 ~ file: share.controller.ts:22 ~ ShareController ~ newShare:", newShare)
             return newShare
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la création de la share')
         }
     }
 
     @MessagePattern('getOneShare')
     async getShare(
-        @Payload() share: any
+        @Payload() _id: string
     ): Promise<Share> {
         try {
-            const shareFind = await this.shareService.getOneShare(share)
+            const shareFind = await this.shareService.getOneShare(_id)
             console.log("🚀 ~ file: share.controller.ts:30 ~ ShareController ~ shareFind:", shareFind)
             if (!shareFind) {
                 throw new Error("Share don't exist")
             }
             return shareFind
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la lecture de la share')
         }
     }
 
     @MessagePattern('removeShare')
     async removeShare(
-        @Payload() share_id: any
+        @Payload() share_id: string
     ): Promise<void> {
         try {
             await this.shareService.removeShare(share_id)
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la suppression de la share')
         }
     }
 
@@ -58,7 +61,7 @@ export class ShareController {
         try {
             await this.shareService.removeDataInShare(share_id)
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la suppression de la data dans share')
         }
     }
 
@@ -68,33 +71,34 @@ export class ShareController {
             const shares = await this.shareService.allShares()
             console.log("🚀 ~ file: share.controller.ts:28 ~ ShareController ~ getAllShares ~ shares:", shares)
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la lecture des shares')
         }
     }
 
     @MessagePattern('getListUsers')
     async getListUsersShare(
         @Payload() body: { user: number, target: string}
-    ): Promise<number[]> {
+    ): Promise<Number[]> {
         try {
             const shares = await this.shareService.getListUsersShare(body)
             // Récupération des ids (target-id) des users avec qui userconnecté partage des informations
-            const usersToShare: any = shares.map((share) => share.target_id)
-
+            const usersToShare = shares.map((share) => share.target_id) 
             return usersToShare
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la récupération des utilisateurs')
         }
     }
 
     @MessagePattern('getShares')
     async getShares(
         // Récupération d'une partie des datas(non pris en compte type)
-        @Payload() listDatas: any
+        @Payload() shareObjet: { target: any, target_id: any }
     ): Promise<any[]> {
+        console.log("🚀 ~ file: share.controller.ts:97 ~ ShareController ~ listDatas:", shareObjet)
         try {
-            const share = await this.shareService.getShares(listDatas)
-            const usersToShareIds: string[] = share.flatMap((share) => share.datas.map((data: any) => data.toString()))
+            const share = await this.shareService.getShares(shareObjet)
+            console.log("🚀 ~ file: share.controller.ts:100 ~ ShareController ~ share:", share)
+            const usersToShareIds: string[] = share.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
                 const data = await this.dataService.getOneDataById(data_id)
                 const id = data_id
@@ -105,7 +109,7 @@ export class ShareController {
             console.log("🚀 ~ file: share.controller.ts:105 ~ ShareController ~ dataObjects ~ dataObjects:", dataObjects)
             return dataObjects
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la récupération des shares')
         }
     }
 
@@ -135,7 +139,7 @@ export class ShareController {
             return dataList
             
         } catch (error) {
-            throw error
+            throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
         }
     }
 }
