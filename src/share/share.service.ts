@@ -139,9 +139,9 @@ export class ShareService {
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
     async getShares(body: { target: string, target_id: number }): Promise<Share[]> {
         try {
-            console.log("🚀 ~ file: share.service.ts:141 ~ ShareService ~ getShares ~ body:", body)
+            // console.log("🚀 ~ file: share.service.ts:141 ~ ShareService ~ getShares ~ body:", body)
             const share = this.shareModel.find({ target: body.target, target_id: body.target_id })
-            console.log("cc du service")
+            // console.log("🚀 ~ file: share.service.ts:144 ~ ShareService ~ getShares ~ share:", share)
             // const usersToShareIds: string[] = shares.flatMap((share) => share.datas.map((data: any) => data.toString()))
             // const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
             //     const data = await this.dataModel.findOne(data_id)

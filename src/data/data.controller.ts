@@ -39,9 +39,9 @@ export class DataController {
     ): Promise<Data> {
         try {
             const data = await this.dataService.getOneDataById(dataId)
-            if (!data) {
-                throw Error
-            }
+            // if (!data) {
+            //     throw new Error('Data inexistante')
+            // }
             return data
         } catch (error) {
             throw new RpcException('Erreur lors de la lecture de la data')
@@ -65,12 +65,12 @@ export class DataController {
 
     @MessagePattern('updateData')
     async updateData(
-        @Payload() data: {_id: string, type: string, name: string, value: string}
+        @Payload() data: { _id: string, type: string, name: string, value: string }
     ): Promise<Data> {
         console.log("🚀 ~ file: data.controller.ts:70 ~ DataController ~ data:", data)
-        
+
         try {
-            
+
             const updateData = await this.dataService.updateData(data)
             if (!updateData) {
                 throw new Error("data not found")

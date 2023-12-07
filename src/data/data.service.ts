@@ -27,9 +27,9 @@ export class DataService {
         console.log("🚀 ~ file: data.service.ts:27 ~ DataService ~ removeData ~ dataId:", _id)
         try {
             const dataToRemoved = await this.dataModel.findByIdAndDelete(_id)
-            if(!dataToRemoved) {
+            if (!dataToRemoved) {
                 throw new error
-            }            
+            }
         } catch (error) {
             throw new RpcException('Data inexistante')
         }
@@ -38,7 +38,8 @@ export class DataService {
     // Récupérer une data par son id
     async getOneDataById(_id: string): Promise<Data> {
         try {
-            return await this.dataModel.findOne({ _id })            
+            const data = await this.dataModel.findOne({ _id })
+            return data
         } catch (error) {
             throw new RpcException('Data inexistante')
         }
@@ -47,17 +48,17 @@ export class DataService {
     // Récupérer les datas d'un user
     async getAllDatasOneUser(user_id: number): Promise<Data[]> {
         try {
-            return await this.dataModel.find({ user_id })            
+            return await this.dataModel.find({ user_id })
         } catch (error) {
             throw new RpcException('Datas inexistantes')
         }
     }
 
     // Modifier une data
-    async updateData(data: {_id: string, type: string, name: string, value: string}): Promise<Data> {
+    async updateData(data: { _id: string, type: string, name: string, value: string }): Promise<Data> {
         try {
             // console.log("🚀 ~ file: data.service.ts:44 ~ DataService ~ updateData ~ data:", data)
-        return await this.dataModel.findOneAndUpdate({ _id: data._id }, { type: data.type, name: data.name, value: data.value}, { new: true } ) 
+            return await this.dataModel.findOneAndUpdate({ _id: data._id }, { type: data.type, name: data.name, value: data.value }, { new: true })
         } catch (error) {
             throw new RpcException('Erreur lors de la mise à jour de la data')
         }

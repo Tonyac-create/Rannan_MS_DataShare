@@ -5,6 +5,7 @@ import { DataService } from 'src/data/data.service';
 import { Share } from './schemas/share.schema';
 import { Data } from 'src/data/schemas/data.schema';
 import { CreateShareDto } from 'src/data/dtos/createShare.dto';
+import { error } from 'console';
 
 @Controller()
 export class ShareController {
@@ -96,10 +97,11 @@ export class ShareController {
     ): Promise<any[]> {
         try {
             const share = await this.shareService.getShares(shareObjet)
-            console.log("🚀 ~ file: share.controller.ts:97 ~ ShareController ~ shareObjet:", shareObjet)
+            // console.log("🚀 ~ file: share.controller.ts:97 ~ ShareController ~ shareObjet:", shareObjet)
 
-            console.log("🚀 ~ file: share.controller.ts:100 ~ ShareController ~ share:", share)
+            // console.log("🚀 ~ file: share.controller.ts:100 ~ ShareController ~ share:", share)
             const usersToShareIds: string[] = share.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
+
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
                 const data = await this.dataService.getOneDataById(data_id)
                 const id = data_id
