@@ -4,7 +4,7 @@ import { Share, ShareDocument } from './schemas/share.schema';
 import { Model } from 'mongoose';
 import { Data, DataDocument } from 'src/data/schemas/data.schema';
 import { error } from 'console';
-import { CreateShareDto } from 'src/data/dtos/createShare.dto';
+import { CreateShareDto } from 'src/share/dtos/createShare.dto';
 import { RpcException } from '@nestjs/microservices';
 const { ObjectId } = require('mongodb')
 
@@ -46,7 +46,7 @@ export class ShareService {
     // Suppression d'une share entière
     async removeShare(share_id: any): Promise<void> {
         try {
-            await this.shareModel.findByIdAndDelete(share_id)            
+            await this.shareModel.findByIdAndDelete(share_id)
         } catch (error) {
             throw new RpcException('Erreur lors de la suppression de la share')
         }
@@ -90,7 +90,7 @@ export class ShareService {
             if (!data) {
                 throw new Error('Data not found');
             }
-            // Révupère toute les shares
+            // Récupère toute les shares
             const allShare = await this.allShares()
 
             let shareId: any
@@ -98,17 +98,21 @@ export class ShareService {
             let shareGet: any
 
             // Cherche si share existante
-            allShare.filter((shareElement: any) => {
+            allShare.filter(async (shareElement: any) => {
                 shareFind = shareElement.target_id === share.target_id && shareElement.owner_id === share.owner_id
                 // Si une share existe, récupération id share et objet share
                 if (shareFind === true) {
                     shareId = shareElement._id
                     shareGet = shareElement
+                    shareGet.datas.push(share.data_id);
+                    await shareGet.save()
                 }
             })
 
             // si pas de share existante
-            if (!shareFind) {
+            if (shareFind === false) {
+                console.log("!sharefind");
+
                 const newShare = await this.shareModel.create({
                     target: share.target,
                     target_id: share.target_id,
@@ -116,10 +120,6 @@ export class ShareService {
                     datas: [share.data_id]
                 })
                 return newShare
-                // si une share existe
-            } else {
-                shareGet.datas.push(share.data_id);
-                await shareGet.save()
             }
         } catch (error) {
             throw new RpcException('Erreur lors de la création de la share')
@@ -130,7 +130,7 @@ export class ShareService {
     async getListUsersShare(params: GetShareParams): Promise<Share[]> {
         try {
             const shares = this.shareModel.find({ owner_id: params.user, target: params.target })
-            return shares            
+            return shares
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des utilisateurs')
         }
@@ -139,17 +139,7 @@ export class ShareService {
     // Récupérer les shares entre le user connecté et un(ou des) user(s)
     async getShares(body: { target: string, target_id: number }): Promise<Share[]> {
         try {
-            // console.log("🚀 ~ file: share.service.ts:141 ~ ShareService ~ getShares ~ body:", body)
             const share = this.shareModel.find({ target: body.target, target_id: body.target_id })
-            // console.log("🚀 ~ file: share.service.ts:144 ~ ShareService ~ getShares ~ share:", share)
-            // const usersToShareIds: string[] = shares.flatMap((share) => share.datas.map((data: any) => data.toString()))
-            // const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
-            //     const data = await this.dataModel.findOne(data_id)
-            //     const id = data_id
-            //     const name = data.name
-            //     const value = data.value
-            //     return { id, name, value }
-            // }))
             return share
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des shares')

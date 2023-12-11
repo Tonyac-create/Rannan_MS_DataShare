@@ -24,7 +24,6 @@ export class DataService {
 
     // Suppression d'une data
     async removeData(_id: string): Promise<void> {
-        console.log("🚀 ~ file: data.service.ts:27 ~ DataService ~ removeData ~ dataId:", _id)
         try {
             const dataToRemoved = await this.dataModel.findByIdAndDelete(_id)
             if (!dataToRemoved) {

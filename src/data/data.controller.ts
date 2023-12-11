@@ -15,8 +15,7 @@ export class DataController {
         @Payload() data: CreateDataDto
     ): Promise<Data> {
         try {
-            const dataCreated: any = await this.dataService.createData(data)
-            return dataCreated
+            return await this.dataService.createData(data)
         } catch (error) {
             throw new RpcException('Erreur lors de la création de la data')
         }
@@ -37,6 +36,7 @@ export class DataController {
     async getOneData(
         @Payload() dataId: string
     ): Promise<Data> {
+        console.log("🚀 ~ file: data.controller.ts:39 ~ DataController ~ dataId:", dataId)
         try {
             const data = await this.dataService.getOneDataById(dataId)
             // if (!data) {
@@ -67,10 +67,7 @@ export class DataController {
     async updateData(
         @Payload() data: { _id: string, type: string, name: string, value: string }
     ): Promise<Data> {
-        console.log("🚀 ~ file: data.controller.ts:70 ~ DataController ~ data:", data)
-
         try {
-
             const updateData = await this.dataService.updateData(data)
             if (!updateData) {
                 throw new Error("data not found")
