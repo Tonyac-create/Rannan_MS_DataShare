@@ -90,16 +90,21 @@ export class ShareController {
     @MessagePattern('getShares')
     async getShares(
         // Récupération d'une partie des datas(non pris en compte type)
-        @Payload() shareObjet: { target: string, target_id: number }
-    ): Promise<any[]> {
+        @Payload() shareObjet: { owner_id: number, target: string, target_id: number }
+    ): Promise<any> {
+
         try {
             const share = await this.shareService.getShares(shareObjet)
 
-            const usersToShareIds: string[] = share.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
+            const shareFind: any[] = share.filter((share) => {
+                return share.owner_id === shareObjet.owner_id && share.target_id === shareObjet.target_id
+            })
+
+            const usersToShareIds: string[] = shareFind.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
 
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
-                const data = await this.dataService.getOneDataById(data_id)
-                const id = data_id
+                const data: any = await this.dataService.getOneDataById(data_id)
+                const id = data._id
                 const name = data.name
                 const value = data.value
                 
