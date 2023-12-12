@@ -83,7 +83,7 @@ export class ShareService {
 
     // Création d'une data
     async createShare(share: CreateShareDto)
-        : Promise<Share> {
+        : Promise<any> {
         try {
             // Cherche et vérifie si la data exist
             const data = await this.dataModel.findOne({ _id: share.data_id })
@@ -99,9 +99,7 @@ export class ShareService {
 
             // Cherche si share existante
             allShare.filter(async (shareElement: any) => {
-                shareFind = shareElement.target_id === share.target_id && shareElement.owner_id === share.owner_id
-                // Si une share existe, récupération id share et objet share
-                if (shareFind === true) {
+                if(shareFind = shareElement.target_id === share.target_id && shareElement.owner_id === share.owner_id) {
                     shareId = shareElement._id
                     shareGet = shareElement
                     shareGet.datas.push(share.data_id);
@@ -110,7 +108,7 @@ export class ShareService {
             })
 
             // si pas de share existante
-            if (shareFind === false) {
+            if (!shareGet) {
                 console.log("!sharefind");
 
                 const newShare = await this.shareModel.create({
