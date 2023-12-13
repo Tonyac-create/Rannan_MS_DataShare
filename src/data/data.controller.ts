@@ -16,7 +16,6 @@ export class DataController {
     ): Promise<Data> {
         try {
             const dataCreated = await this.dataService.createData(data)
-            console.log("🚀 ~ file: data.controller.ts:19 ~ DataController ~ dataCreated:", dataCreated)
             return dataCreated
         } catch (error) {
             throw new RpcException('Erreur lors de la création de la data')

@@ -18,7 +18,6 @@ export class ShareController {
     async createShare(
         @Payload() share: CreateShareDto
     ): Promise<Share> {
-        // console.log("🚀 ~ file: share.controller.ts:20 ~ ShareController ~ share:", share)
         try {
             const newShare = await this.shareService.createShare(share)
             return newShare
@@ -33,7 +32,6 @@ export class ShareController {
     ): Promise<Share> {
         try {
             const shareFind = await this.shareService.getOneShare(_id)
-            console.log("🚀 ~ file: share.controller.ts:30 ~ ShareController ~ shareFind:", shareFind)
             if (!shareFind) {
                 throw new Error("Share don't exist")
             }
