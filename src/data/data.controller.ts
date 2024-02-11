@@ -37,7 +37,6 @@ export class DataController {
     async getOneData(
         @Payload() dataId: string
     ): Promise<Data> {
-        console.log("🚀 ~ file: data.controller.ts:39 ~ DataController ~ dataId:", dataId)
         try {
             const data = await this.dataService.getOneDataById(dataId)
             // if (!data) {

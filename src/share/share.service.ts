@@ -34,9 +34,10 @@ export class ShareService {
     }
 
     // Récupérer une share
-    async getOneShare(id: string): Promise<Share> {
+    async getOneShare(users: { owner_id: number, target_id: number}): Promise<any> {
+        console.log("🚀 ~ ShareService ~ getOneShare ~ users:", users)
         try {
-            const share = this.shareModel.findById({ _id: id })
+            const share = await this.shareModel.find({ owner_id: users.owner_id, target_id: users.target_id })
             return share
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération de la share')
@@ -52,26 +53,18 @@ export class ShareService {
         }
     }
 
-    // Suppression d'une data dans share et de share dans data
-    async removeDataInShare(share_id: { id: string, data_id: string }): Promise<any> {
+    // Suppression d'une data dans share
+    async removeDataInShare(share_id: { share_id: string, data_id: string }): Promise<any> {
         try {
-            const dataId = share_id.data_id
             // Récupération de la share
-            const share = await this.shareModel.findById({ _id: share_id.id })
+            const share = await this.shareModel.findById({ _id: share_id.share_id })
             if (!share) {
                 throw error
             } else {
-                // Récupère les datas id dans la share
-                const data_id = share.datas.filter((data) => share.datas)
-                // Récupère la data
-                const dataFind = await this.dataModel.findById({ _id: dataId })
-                // Conversion de l'id reçu en mongoId
-                const shareIdObject = new ObjectId(share_id)
-
                 // Supprime la data de la share existante
                 await this.shareModel.findOneAndUpdate(
-                    { _id: share_id.id },
-                    { $pull: { datas: dataFind._id } },
+                    { _id: share_id.share_id },
+                    { $pull: { datas: share_id.data_id } },
                     { new: true })
             }
         } catch (error) {

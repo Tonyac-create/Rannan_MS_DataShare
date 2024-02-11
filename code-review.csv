@@ -1,8 +1,5 @@
 sha,filename,url,lines,title,comment,priority,category,additional,id,private
-"41a0513d25fae7a8980305fe20a30e3d5938507b","\src\data\data.controller.ts","","14:15-14:18|25:15-25:18|36:15-36:18|52:15-52:18|68:15-68:18","Typage","Qu'est ce qu'est que ce typage ?? ","0","Best Practices","","a1a00af2-3fed-4e96-85fc-c426e8b245b9","0"
 "41a0513d25fae7a8980305fe20a30e3d5938507b","\src\data\data.controller.ts","","70:2-72:13","Test inutile","Tu ne dois pas tester si dataId est présetn mais si data existe avec la dataId, comme dans getByID","0","Architecture","","179d449c-cc03-4d3b-bf0b-e8d64025a158","0"
-"41a0513d25fae7a8980305fe20a30e3d5938507b","\src\data\data.service.ts","","14:81-14:84","Typage","user_id contient user_id ? besoin d'un typage pour comprendre","0","Best Practices","","36a5d176-2ad8-46c3-b060-a528a344aa44","0"
-"41a0513d25fae7a8980305fe20a30e3d5938507b","\src\data\data.service.ts","","14:21-14:86","DTO","Crées un dto pour typer ton argument de fonction ","0","Best Practices","","a56ace7f-8232-4d23-beff-ec43da709b7e","0"
 "41a0513d25fae7a8980305fe20a30e3d5938507b","\src\data\data.service.ts","","30:4-31:18","refacto","Tu peux le faire en une ligne ;) res est utile ? ","0","Code-Style","","5a918971-2c60-4a03-b601-a453db2133ea","0"
 "41a0513d25fae7a8980305fe20a30e3d5938507b","\src\app.service.ts","","5:22-6:26","fichiers inutiles","SI les fichiers ne servent à rien supprime les ","0","Best Practices","","7dbd19cb-da43-400c-b27e-3d053ab37040","0"
 "41a0513d25fae7a8980305fe20a30e3d5938507b","\src\app.controller.ts","","1:0-13:0","fichier inutile","suppression des fihciers inutiles","0","Best Practices","","12073d7b-55e0-4d85-95db-e15ad9397fa8","0"

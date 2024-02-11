@@ -28,10 +28,11 @@ export class ShareController {
 
     @MessagePattern('getOneShare')
     async getShare(
-        @Payload() _id: string
+        @Payload() users: {owner_id: number, target_id: number}
     ): Promise<Share> {
+        console.log("🚀 ~ ShareController ~ _id:", users)
         try {
-            const shareFind = await this.shareService.getOneShare(_id)
+            const shareFind = await this.shareService.getOneShare(users)
             if (!shareFind) {
                 throw new Error("Share don't exist")
             }
@@ -52,20 +53,21 @@ export class ShareController {
         }
     }
 
-    @MessagePattern('getAllShares')
-    async removeDataInShare(): Promise<any> {
+    @MessagePattern('removeDataInShare')
+    async removeDataInShare(
+        @Payload() share_id: { share_id: string, data_id: string }
+    ): Promise<any> {
         try {
-            return await this.shareService.allShares()
+            return await this.shareService.removeDataInShare(share_id)
         } catch (error) {
             throw new RpcException('Erreur lors de la suppression de la data dans share')
         }
     }
 
-    @MessagePattern('removeDataInShare')
+    @MessagePattern('getAllShares')
     async getAllShares(): Promise<void> {
         try {
             const shares = await this.shareService.allShares()
-            console.log("🚀 ~ file: share.controller.ts:28 ~ ShareController ~ getAllShares ~ shares:", shares)
         } catch (error) {
             throw new RpcException('Erreur lors de la lecture des shares')
         }
@@ -90,10 +92,10 @@ export class ShareController {
         // Récupération d'une partie des datas(non pris en compte type)
         @Payload() shareObjet: { owner_id: number, target: string, target_id: number }
     ): Promise<any> {
-
         try {
-            const share = await this.shareService.getShares(shareObjet)
-
+            const share: any = await this.shareService.getShares(shareObjet)
+            const idShare = share[0]._id.toString()
+            
             const shareFind: any[] = share.filter((share) => {
                 return share.owner_id === shareObjet.owner_id && share.target_id === shareObjet.target_id
             })
@@ -106,7 +108,7 @@ export class ShareController {
                 const name = data.name
                 const value = data.value
                 
-                return { id, name, value }
+                return { idShare, id, name, value }
             }))
             return dataObjects
         } catch (error) {
@@ -136,7 +138,6 @@ export class ShareController {
                 const value = data.value
                 return dataList.push({ id, name, value })
             })
-            console.log("🚀 ~ file: share.controller.ts:94 ~ ShareController ~ dataList:", dataList)
             return dataList
 
         } catch (error) {
