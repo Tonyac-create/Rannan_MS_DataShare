@@ -6,7 +6,6 @@ import { Data, DataDocument } from 'src/data/schemas/data.schema';
 import { error } from 'console';
 import { CreateShareDto } from 'src/share/dtos/createShare.dto';
 import { RpcException } from '@nestjs/microservices';
-const { ObjectId } = require('mongodb')
 
 
 type GetShareParams = {
@@ -85,6 +84,7 @@ export class ShareService {
             }
             // Récupère toute les shares
             const allShare = await this.allShares()
+            console.log("🚀 ~ ShareService ~ allShare:", allShare)
 
             let shareId: any
             let shareFind: any
@@ -102,8 +102,6 @@ export class ShareService {
 
             // si pas de share existante
             if (!shareGet) {
-                console.log("!sharefind");
-
                 const newShare = await this.shareModel.create({
                     target: share.target,
                     target_id: share.target_id,
@@ -142,6 +140,14 @@ export class ShareService {
         try {
             const shares = this.shareModel.find({ owner_id: body.userId_profile.userId_profile, target_id: body.user_id })
             return shares
+        } catch (error) {
+            throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
+        }
+    }
+
+    async updateShare(id_share: string, data_id: string ): Promise<any> {
+        try {
+            return await this.shareModel.findByIdAndUpdate({_id: id_share, datas: data_id}, {new: true})
         } catch (error) {
             throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
         }

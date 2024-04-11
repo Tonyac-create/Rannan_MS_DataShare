@@ -92,18 +92,23 @@ export class ShareController {
         // Récupération d'une partie des datas(non pris en compte type)
         @Payload() shareObjet: { owner_id: number, target: string, target_id: number }
     ): Promise<any> {
+        // console.log("🚀 ~ ShareController ~ shareObjet:", shareObjet)
         try {
             const share: any = await this.shareService.getShares(shareObjet)
+            // console.log("🚀 ~ ShareController ~ share:", share)
             const idShare = share[0]._id.toString()
             
             const shareFind: any[] = share.filter((share) => {
-                return share.owner_id === shareObjet.owner_id && share.target_id === shareObjet.target_id
+                return share.target_id === shareObjet.target_id
             })
+            // console.log("🚀 ~ ShareController ~ constshareFind:any[]=share.filter ~ shareFind:", shareFind)
 
             const usersToShareIds: string[] = shareFind.flatMap((share: any) => share.datas.map((data: any) => data.toString()))
+            // console.log("🚀 ~ ShareController ~ usersToShareIds:", usersToShareIds)
 
             const dataObjects = await Promise.all(usersToShareIds.map(async (data_id: any) => {
                 const data: any = await this.dataService.getOneDataById(data_id)
+                // console.log("🚀 ~ ShareController ~ dataObjects ~ data:", data)
                 const id = data._id
                 const name = data.name
                 const value = data.value
@@ -144,4 +149,15 @@ export class ShareController {
             throw new RpcException('Erreur lors de la récupération des shares avec user_profile')
         }
     }
+
+    // @MessagePattern("updateShare")
+    // async updateDataInShare(
+    //     @Payload() infos: {id_share: string, data_id: string}
+    // ): Promise<void> {
+    //     try {
+            
+    //     } catch (error) {
+    //         throw new RpcException('Erreur lors de la mise à jour de la share')
+    //     }
+    // }
 }

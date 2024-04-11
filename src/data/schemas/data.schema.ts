@@ -13,10 +13,10 @@ export class Data {
     @Prop({ type: String, enum: DataFormatEnum })
     type?: DataFormatEnum
 
-    @Prop({ type: String })
+    @Prop({ required: true, type: String })
     name: String
 
-    @Prop({ type: String })
+    @Prop({ required: true, type: String })
     value: String
 }
 

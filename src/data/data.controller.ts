@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { DataService } from './data.service';
 import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { Data } from './schemas/data.schema';
@@ -16,9 +16,10 @@ export class DataController {
     ): Promise<Data> {
         try {
             const dataCreated = await this.dataService.createData(data)
+            console.log("🚀 ~ DataController ~ dataCreated:", dataCreated)
             return dataCreated
         } catch (error) {
-            throw new RpcException('Erreur lors de la création de la data')
+            throw new RpcException({ status: 'error', message: "Erreur lors de la création", detail: error })
         }
     }
 
@@ -39,9 +40,6 @@ export class DataController {
     ): Promise<Data> {
         try {
             const data = await this.dataService.getOneDataById(dataId)
-            // if (!data) {
-            //     throw new Error('Data inexistante')
-            // }
             return data
         } catch (error) {
             throw new RpcException('Erreur lors de la lecture de la data')
